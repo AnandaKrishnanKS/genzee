@@ -1,0 +1,376 @@
+// GenZee Psychologist — Prisma Schema
+// PostgreSQL + Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Admin ────────────────────────────────────────────────────────────────────
+
+model AdminUser {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  hashedPassword String
+  name           String
+  role           AdminRole @default(ADMIN)
+  mfaEnabled     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  auditLogs      AdminAuditLog[]
+
+  @@map("admin_users")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+}
+
+// ─── Client ───────────────────────────────────────────────────────────────────
+
+model Client {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  country      String?
+  timezone     String   @default("Asia/Kolkata")
+  language     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  appointments Appointment[]
+
+  @@index([email])
+  @@map("clients")
+}
+
+// ─── Appointment ──────────────────────────────────────────────────────────────
+
+model Appointment {
+  id                 String            @id @default(cuid())
+  reference          String            @unique @default(cuid())
+  clientId           String
+  client             Client            @relation(fields: [clientId], references: [id])
+
+  startTime          DateTime          // UTC
+  endTime            DateTime          // UTC
+  clientTimezone     String            // client's timezone for display
+  professionalTimezone String          // psychologist's timezone
+
+  status             AppointmentStatus @default(PENDING_PAYMENT)
+  sessionType        String            @default("ONLINE")
+
+  // Private intake — never exposed to public APIs or emails
+  intakeDescription  String?           @db.Text
+
+  meetingLink        String?
+  meetingInstructions String?
+
+  // Booking version — increment on reschedule to invalidate stale reminder jobs
+  bookingVersion     Int               @default(1)
+
+  // Consent
+  consentVersion     String?
+  consentAt          DateTime?
+  consentIp          String?
+
+  // Payment linkage
+  payment            Payment?
+
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  statusHistory      AppointmentStatusHistory[]
+  emailNotifications EmailNotification[]
+  emailJobs          EmailJob[]
+  consentRecord      ConsentRecord?
+
+  @@index([status])
+  @@index([startTime])
+  @@index([clientId])
+  @@map("appointments")
+}
+
+enum AppointmentStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+  NO_SHOW
+}
+
+model AppointmentStatusHistory {
+  id             String            @id @default(cuid())
+  appointmentId  String
+  appointment    Appointment       @relation(fields: [appointmentId], references: [id])
+  previousStatus AppointmentStatus?
+  newStatus      AppointmentStatus
+  changedBy      String?           // admin user id or "system"
+  reason         String?
+  changedAt      DateTime          @default(now())
+
+  @@index([appointmentId])
+  @@map("appointment_status_history")
+}
+
+// ─── Availability ─────────────────────────────────────────────────────────────
+
+model AvailabilityRule {
+  id        String   @id @default(cuid())
+  dayOfWeek Int      // 0=Sunday … 6=Saturday
+  startTime String   // "HH:MM" in professional's timezone
+  endTime   String   // "HH:MM"
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([dayOfWeek, startTime, endTime])
+  @@map("availability_rules")
+}
+
+model AvailabilityException {
+  id          String   @id @default(cuid())
+  date        String   // "YYYY-MM-DD"
+  isBlocked   Boolean  @default(true)
+  reason      String?
+  customSlots Json?    // [{start:"HH:MM", end:"HH:MM"}]
+  createdAt   DateTime @default(now())
+
+  @@unique([date])
+  @@map("availability_exceptions")
+}
+
+// Transient slot holds to prevent race-condition double bookings
+model SlotHold {
+  id        String   @id @default(cuid())
+  date      String   // "YYYY-MM-DD"
+  startTime DateTime // UTC
+  sessionId String   @unique // browser session or temp booking id
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([startTime])
+  @@index([expiresAt])
+  @@map("slot_holds")
+}
+
+// ─── Payment ──────────────────────────────────────────────────────────────────
+
+model Payment {
+  id                 String        @id @default(cuid())
+  appointmentId      String        @unique
+  appointment        Appointment   @relation(fields: [appointmentId], references: [id])
+  razorpayOrderId    String?       @unique
+  razorpayPaymentId  String?       @unique
+  razorpaySignature  String?
+  amountPaise        Int           // amount in paise (INR subunit)
+  currency           String        @default("INR")
+  status             PaymentStatus @default(CREATED)
+  isFreeSession      Boolean       @default(false)
+  refundId           String?
+  refundStatus       String?
+  refundedAt         DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  events             PaymentEvent[]
+
+  @@index([status])
+  @@map("payments")
+}
+
+enum PaymentStatus {
+  CREATED
+  INITIATED
+  CAPTURED
+  FAILED
+  REFUNDED
+  FREE
+}
+
+model PaymentEvent {
+  id          String   @id @default(cuid())
+  paymentId   String
+  payment     Payment  @relation(fields: [paymentId], references: [id])
+  event       String   // e.g. "payment.captured", "order.paid"
+  payload     Json
+  processedAt DateTime @default(now())
+
+  @@index([paymentId])
+  @@map("payment_events")
+}
+
+// ─── Email ────────────────────────────────────────────────────────────────────
+
+model EmailNotification {
+  id            String              @id @default(cuid())
+  appointmentId String?
+  appointment   Appointment?        @relation(fields: [appointmentId], references: [id])
+  type          EmailNotificationType
+  recipientEmail String
+  status        EmailStatus         @default(PENDING)
+  scheduledAt   DateTime?
+  sentAt        DateTime?
+  providerId    String?             // Resend message ID
+  error         String?
+  attemptCount  Int                 @default(0)
+  bookingVersion Int                @default(1) // stale-job protection
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([status])
+  @@index([appointmentId])
+  @@map("email_notifications")
+}
+
+model EmailJob {
+  id             String        @id @default(cuid())
+  appointmentId  String
+  appointment    Appointment   @relation(fields: [appointmentId], references: [id])
+  type           EmailNotificationType
+  recipientEmail String
+  scheduledFor   DateTime      // UTC — when to send
+  status         EmailJobStatus @default(SCHEDULED)
+  attemptCount   Int           @default(0)
+  lastAttemptAt  DateTime?
+  nextAttemptAt  DateTime?
+  sentAt         DateTime?
+  providerId     String?
+  error          String?
+  bookingVersion Int           @default(1) // stale-job protection
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  // Prevent duplicate jobs for same appointment+type+version
+  @@unique([appointmentId, type, bookingVersion])
+  @@index([status, scheduledFor])
+  @@map("email_jobs")
+}
+
+enum EmailNotificationType {
+  BOOKING_CONFIRMATION
+  REMINDER_24H
+  REMINDER_1H
+  CANCELLATION
+  RESCHEDULED
+  PAYMENT_FAILED
+  ADMIN_NEW_BOOKING
+  ADMIN_MISSING_LINK
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}
+
+enum EmailJobStatus {
+  SCHEDULED
+  PROCESSING
+  SENT
+  FAILED
+  CANCELLED
+  SKIPPED
+}
+
+// ─── Settings ─────────────────────────────────────────────────────────────────
+
+model ReminderSettings {
+  id                  String   @id @default(cuid())
+  enabled24h          Boolean  @default(true)
+  enabled1h           Boolean  @default(true)
+  advance24hMinutes   Int      @default(1440) // 24 * 60
+  advance1hMinutes    Int      @default(60)
+  adminAlertMinutes   Int      @default(120)  // 2 hours before
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("reminder_settings")
+}
+
+model ConsultationSettings {
+  id                    String   @id @default(cuid())
+  psychologistName      String   @default("Your Psychologist")
+  sessionDurationMinutes Int     @default(50)
+  bufferMinutes         Int      @default(10)
+  bookingLeadMinutes    Int      @default(120)  // min notice for booking
+  maxAdvanceDays        Int      @default(60)   // how far ahead can be booked
+  professionalTimezone  String   @default("Asia/Kolkata")
+  minPaymentPaise       Int      @default(10000) // ₹100 minimum
+  maxPaymentPaise       Int      @default(500000) // ₹5000 max
+  suggestedAmounts      Json     @default("[50000, 100000, 200000]") // in paise
+  freeSessionsEnabled   Boolean  @default(false)
+  freeSessionLimit      Int      @default(0)
+  updatedAt             DateTime @updatedAt
+
+  @@map("consultation_settings")
+}
+
+// ─── Consent ──────────────────────────────────────────────────────────────────
+
+model ConsentRecord {
+  id            String      @id @default(cuid())
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  version       String      // consent policy version
+  consentedAt   DateTime
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime    @default(now())
+
+  @@map("consent_records")
+}
+
+// ─── Content Management ───────────────────────────────────────────────────────
+
+model WebsiteContent {
+  id        String   @id @default(cuid())
+  key       String   @unique // e.g. "hero.headline", "about.bio"
+  value     String   @db.Text
+  type      String   @default("text") // text | html | json | image_url
+  updatedAt DateTime @updatedAt
+  updatedBy String?  // admin user id
+
+  @@map("website_content")
+}
+
+model FAQ {
+  id          String   @id @default(cuid())
+  question    String
+  answer      String   @db.Text
+  order       Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished, order])
+  @@map("faqs")
+}
+
+// ─── Audit Log ────────────────────────────────────────────────────────────────
+
+model AdminAuditLog {
+  id         String    @id @default(cuid())
+  adminId    String?
+  admin      AdminUser? @relation(fields: [adminId], references: [id])
+  action     String    // e.g. "CONFIRM_BOOKING", "CANCEL_BOOKING"
+  entityType String    // e.g. "Appointment", "Client"
+  entityId   String?
+  metadata   Json?
+  ipAddress  String?
+  createdAt  DateTime  @default(now())
+
+  @@index([adminId])
+  @@index([entityType, entityId])
+  @@map("admin_audit_logs")
+}

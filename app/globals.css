@@ -1,0 +1,215 @@
+@import "tailwindcss";
+
+@theme {
+  /* ─── Brand Colors ─────────────────────────────────────── */
+  --color-lavender:      #A78BFA;
+  --color-lavender-deep: #6D4EC9;
+  --color-lavender-mist: #F0E9FF;
+  --color-peach:         #FFD8C5;
+  --color-pink:          #FFE4EF;
+  --color-mint:          #B8E9D1;
+  --color-cream:         #FFF9F3;
+  --color-charcoal:      #24212E;
+  --color-white:         #FFFFFF;
+
+  /* Tints */
+  --color-lavender-100:  #F5F0FF;
+  --color-lavender-200:  #E9DAFF;
+  --color-lavender-300:  #D4BAFF;
+  --color-lavender-500:  #A78BFA;
+  --color-lavender-600:  #8B5CF6;
+  --color-lavender-700:  #6D4EC9;
+
+  --color-peach-100: #FFF3ED;
+  --color-peach-200: #FFE8D6;
+  --color-peach-300: #FFD8C5;
+
+  --color-mint-100: #EDFDF5;
+  --color-mint-200: #D1FAE5;
+  --color-mint-300: #B8E9D1;
+
+  /* ─── Fonts ──────────────────────────────────────────────── */
+  --font-display: var(--font-display), "Space Grotesk", sans-serif;
+  --font-body:    var(--font-body), "DM Sans", sans-serif;
+
+  /* ─── Border Radius ──────────────────────────────────────── */
+  --radius-sm:  0.5rem;
+  --radius-md:  0.875rem;
+  --radius-lg:  1.25rem;
+  --radius-xl:  2rem;
+  --radius-2xl: 3rem;
+  --radius-full: 9999px;
+
+  /* ─── Shadows ────────────────────────────────────────────── */
+  --shadow-soft:   0 4px 24px 0 rgba(167, 139, 250, 0.12);
+  --shadow-card:   0 2px 16px 0 rgba(36, 33, 46, 0.08);
+  --shadow-lifted: 0 8px 32px 0 rgba(167, 139, 250, 0.18);
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-charcoal);
+  font-family: var(--font-body);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Typography ─────────────────────────────────────────────────────────── */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+/* ─── Selection ──────────────────────────────────────────────────────────── */
+
+::selection {
+  background-color: var(--color-lavender-300);
+  color: var(--color-charcoal);
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-cream); }
+::-webkit-scrollbar-thumb {
+  background: var(--color-lavender-300);
+  border-radius: 99px;
+}
+
+/* ─── Focus ──────────────────────────────────────────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid var(--color-lavender);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ─── Utility Classes ────────────────────────────────────────────────────── */
+
+.font-display { font-family: var(--font-display); }
+.font-body    { font-family: var(--font-body); }
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-lavender-700) 0%, var(--color-lavender) 50%, var(--color-peach) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-warm {
+  background: linear-gradient(135deg, var(--color-lavender) 0%, var(--color-peach) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bg-blob-gradient {
+  background: radial-gradient(ellipse at top left, var(--color-lavender-mist) 0%, var(--color-cream) 60%);
+}
+
+.blob {
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+}
+
+.blob-2 {
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+}
+
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lifted);
+}
+
+.section-padding {
+  padding-block: 6rem;
+}
+
+@media (max-width: 768px) {
+  .section-padding {
+    padding-block: 4rem;
+  }
+}
+
+/* ─── Grain Texture Overlay ──────────────────────────────────────────────── */
+
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.4;
+}
+
+/* ─── Reduced Motion ─────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── Admin Dashboard ────────────────────────────────────────────────────── */
+
+.admin-sidebar {
+  width: 260px;
+  min-height: 100vh;
+  background: var(--color-charcoal);
+  color: white;
+}
+
+/* ─── Calendar ───────────────────────────────────────────────────────────── */
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.calendar-day:hover:not(.calendar-day--disabled):not(.calendar-day--selected) {
+  background-color: var(--color-lavender-200);
+}
+
+.calendar-day--selected {
+  background-color: var(--color-lavender);
+  color: white;
+}
+
+.calendar-day--today {
+  border: 2px solid var(--color-lavender);
+}
+
+.calendar-day--disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.calendar-day--available {
+  background-color: var(--color-mint-100);
+}

@@ -1,0 +1,245 @@
+{
+  "admin": {
+    "id": "admin_1",
+    "email": "admin@genzeepsych.com",
+    "name": "Dr. Sarah Rao",
+    "hashedPassword": "$2b$10$6Ytm3wyLXqDGNzByW1hOxeMxPoOLl7NmFUjvMrNOwQ8j/0y5wJgLa",
+    "role": "SUPER_ADMIN"
+  },
+  "settings": {
+    "professionalTimezone": "Asia/Kolkata",
+    "sessionDurationMinutes": 50,
+    "bufferMinutes": 10,
+    "bookingLeadMinutes": 120,
+    "maxAdvanceDays": 60
+  },
+  "availabilityRules": [
+    {
+      "id": "rule_1",
+      "dayOfWeek": 1,
+      "startTime": "00:00",
+      "endTime": "18:00",
+      "isActive": true
+    },
+    {
+      "id": "rule_2",
+      "dayOfWeek": 2,
+      "startTime": "10:00",
+      "endTime": "18:00",
+      "isActive": true
+    },
+    {
+      "id": "rule_3",
+      "dayOfWeek": 3,
+      "startTime": "10:00",
+      "endTime": "18:00",
+      "isActive": true
+    },
+    {
+      "id": "rule_4",
+      "dayOfWeek": 4,
+      "startTime": "10:00",
+      "endTime": "18:00",
+      "isActive": true
+    },
+    {
+      "id": "rule_5",
+      "dayOfWeek": 5,
+      "startTime": "10:00",
+      "endTime": "18:00",
+      "isActive": true
+    },
+    {
+      "id": "rule_6",
+      "dayOfWeek": 6,
+      "startTime": "11:00",
+      "endTime": "16:00",
+      "isActive": true
+    },
+    {
+      "id": "rule_7",
+      "dayOfWeek": 0,
+      "startTime": "11:00",
+      "endTime": "15:00",
+      "isActive": false
+    }
+  ],
+  "exceptions": [
+    {
+      "id": "exc_1",
+      "date": "2026-10-25",
+      "isBlocked": true,
+      "reason": "National Holiday / Workshop"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "apt_1",
+      "reference": "GZ-2026-8941",
+      "clientId": "cl_1",
+      "client": {
+        "id": "cl_1",
+        "name": "Aanya Sharma",
+        "email": "aanya.sharma@example.com",
+        "phone": "+91 98201 12345",
+        "country": "India",
+        "timezone": "Asia/Kolkata",
+        "language": "English / Hindi",
+        "createdAt": "2026-10-08T15:34:08.666Z"
+      },
+      "startTime": "2026-10-14T09:30:00.000Z",
+      "endTime": "2026-10-14T10:20:00.000Z",
+      "clientTimezone": "Asia/Kolkata",
+      "professionalTimezone": "Asia/Kolkata",
+      "status": "CONFIRMED",
+      "sessionType": "ONLINE",
+      "meetingLink": "https://meet.google.com/abc-wxyz-qrs",
+      "meetingInstructions": "Please join 2 minutes before using earphones and a private room.",
+      "intakeDescription": "I've been feeling extremely overwhelmed with college transitions and recent career anxiety. Over the past few months, I find it hard to concentrate on my final semester projects because of intrusive thoughts about failure and letting my parents down. I frequently experience physical symptoms like a racing heart and shallow breathing whenever presentations are coming up. I also struggle with setting boundaries with friends, leading to emotional exhaustion. I'm hoping to understand healthier coping tools, learn cognitive restructuring, and develop sustainable emotional grounding habits.",
+      "payment": {
+        "id": "pay_1",
+        "appointmentId": "apt_1",
+        "razorpayOrderId": "order_Q918237192",
+        "razorpayPaymentId": "pay_Q819203810",
+        "amountPaise": 150000,
+        "currency": "INR",
+        "status": "CAPTURED",
+        "isFreeSession": false,
+        "createdAt": "2026-10-09T15:34:08.666Z"
+      },
+      "createdAt": "2026-10-08T15:34:08.666Z"
+    },
+    {
+      "id": "apt_2",
+      "reference": "GZ-2026-5319",
+      "clientId": "cl_2",
+      "client": {
+        "id": "cl_2",
+        "name": "Kabir Mehta",
+        "email": "kabir.m@example.com",
+        "phone": "+91 97112 67890",
+        "country": "India",
+        "timezone": "Asia/Kolkata",
+        "language": "English",
+        "createdAt": "2026-10-10T15:34:08.666Z"
+      },
+      "startTime": "2026-10-15T11:30:00.000Z",
+      "endTime": "2026-10-15T12:20:00.000Z",
+      "clientTimezone": "Asia/Kolkata",
+      "professionalTimezone": "Asia/Kolkata",
+      "status": "CONFIRMED",
+      "sessionType": "ONLINE",
+      "meetingLink": "https://meet.google.com/def-uvwx-yza",
+      "intakeDescription": "Dealing with burnout from corporate tech work and acute perfectionism. I constantly feel an internal pressure that whatever I achieve isn't enough, which causes severe insomnia and dread on Sunday evenings. I have difficulty disconnecting after working hours. Would love to unpack where this chronic need for external validation stems from and learn how to practice self-compassion without feeling like I'm losing my drive.",
+      "payment": {
+        "id": "pay_2",
+        "appointmentId": "apt_2",
+        "razorpayOrderId": "order_M771928312",
+        "razorpayPaymentId": "pay_M992817261",
+        "amountPaise": 200000,
+        "currency": "INR",
+        "status": "CAPTURED",
+        "isFreeSession": false,
+        "createdAt": "2026-10-11T15:34:08.666Z"
+      },
+      "createdAt": "2026-10-10T15:34:08.666Z"
+    },
+    {
+      "id": "apt_3",
+      "reference": "GZ-2026-1184",
+      "clientId": "cl_3",
+      "client": {
+        "id": "cl_3",
+        "name": "Rhea Sen",
+        "email": "rhea.sen@example.com",
+        "phone": "+91 99300 45678",
+        "country": "India",
+        "timezone": "Asia/Kolkata",
+        "language": "English",
+        "createdAt": "2026-10-12T15:34:08.666Z"
+      },
+      "startTime": "2026-10-14T13:00:00.000Z",
+      "endTime": "2026-10-14T13:50:00.000Z",
+      "clientTimezone": "Asia/Kolkata",
+      "professionalTimezone": "Asia/Kolkata",
+      "status": "PENDING_PAYMENT",
+      "sessionType": "ONLINE",
+      "intakeDescription": "Navigating grief and relational difficulties following a major long-term friendship breakup. It has triggered old abandonment fears and social isolation. Looking for a safe, non-judgmental space to talk through these feelings, rebuild trust in my social circles, and understand relational attachment styles.",
+      "payment": {
+        "id": "pay_3",
+        "appointmentId": "apt_3",
+        "amountPaise": 100000,
+        "currency": "INR",
+        "status": "CREATED",
+        "isFreeSession": false,
+        "createdAt": "2026-10-12T15:34:08.666Z"
+      },
+      "createdAt": "2026-10-12T15:34:08.666Z"
+    },
+    {
+      "id": "apt_1791922503851",
+      "reference": "GZ-MV74E1TC-CMYQ",
+      "clientId": "cl_1791922503851",
+      "client": {
+        "id": "cl_1791922503851",
+        "name": "ak ks",
+        "email": "a0k0k0s@gmail.com",
+        "phone": "8921690599",
+        "country": "FR",
+        "timezone": "Europe/Paris",
+        "language": "",
+        "createdAt": "2026-10-13T20:14:59.760Z"
+      },
+      "startTime": "2026-10-15T04:30:00.000Z",
+      "endTime": "2026-10-15T05:20:00.000Z",
+      "clientTimezone": "Europe/Paris",
+      "professionalTimezone": "Asia/Kolkata",
+      "status": "PENDING_PAYMENT",
+      "sessionType": "ONLINE",
+      "intakeDescription": "kkahkjhkjdshfkjhaf",
+      "createdAt": "2026-10-13T20:14:59.760Z"
+    }
+  ],
+  "clients": [
+    {
+      "id": "cl_1",
+      "name": "Aanya Sharma",
+      "email": "aanya.sharma@example.com",
+      "phone": "+91 98201 12345",
+      "country": "India",
+      "timezone": "Asia/Kolkata",
+      "language": "English / Hindi",
+      "createdAt": "2026-10-08T15:34:08.666Z"
+    },
+    {
+      "id": "cl_2",
+      "name": "Kabir Mehta",
+      "email": "kabir.m@example.com",
+      "phone": "+91 97112 67890",
+      "country": "India",
+      "timezone": "Asia/Kolkata",
+      "language": "English",
+      "createdAt": "2026-10-10T15:34:08.666Z"
+    },
+    {
+      "id": "cl_3",
+      "name": "Rhea Sen",
+      "email": "rhea.sen@example.com",
+      "phone": "+91 99300 45678",
+      "country": "India",
+      "timezone": "Asia/Kolkata",
+      "language": "English",
+      "createdAt": "2026-10-12T15:34:08.666Z"
+    },
+    {
+      "id": "cl_1791922503851",
+      "name": "ak ks",
+      "email": "a0k0k0s@gmail.com",
+      "phone": "8921690599",
+      "country": "FR",
+      "timezone": "Europe/Paris",
+      "language": "",
+      "createdAt": "2026-10-13T20:14:59.760Z"
+    }
+  ]
+}
