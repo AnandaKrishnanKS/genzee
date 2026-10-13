@@ -5,6 +5,8 @@ import { CreateBookingSchema } from "@/lib/validations";
 import { countWords } from "@/lib/utils";
 import { generateReference } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
