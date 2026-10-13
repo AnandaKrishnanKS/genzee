@@ -4,23 +4,35 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+function createSafeFallbackProxy(): PrismaClient {
+  return new Proxy({} as PrismaClient, {
+    get(_target, prop) {
+      if (prop === "$transaction") {
+        return () => Promise.reject(new Error("Database not connected"));
+      }
+      return new Proxy({}, {
+        get() {
+          return () => Promise.reject(new Error("Database not connected"));
+        },
+      });
+    },
+  });
+}
+
 function getPrismaClient(): PrismaClient {
   if (globalForPrisma.prisma) return globalForPrisma.prisma;
 
-  // If DATABASE_URL is not set (e.g. during Vercel build time), avoid crashing
-  if (!process.env.DATABASE_URL) {
-    return new Proxy({} as PrismaClient, {
-      get(_target, prop) {
-        if (prop === "$transaction") {
-          return () => Promise.reject(new Error("DATABASE_URL not configured"));
-        }
-        return new Proxy({}, {
-          get() {
-            return () => Promise.reject(new Error("DATABASE_URL not configured"));
-          },
-        });
-      },
-    });
+  const dbUrl = process.env.DATABASE_URL;
+
+  // In production (like Vercel), if DATABASE_URL is missing, dummy, or points to localhost,
+  // do not try to initialize Prisma - smoothly fall back to our local data store.
+  if (
+    !dbUrl ||
+    dbUrl.includes("localhost") ||
+    dbUrl.includes("username:password@host") ||
+    dbUrl.includes("dummy")
+  ) {
+    return createSafeFallbackProxy();
   }
 
   try {
@@ -35,11 +47,7 @@ function getPrismaClient(): PrismaClient {
     return client;
   } catch (err) {
     console.warn("Prisma Client initialization skipped:", err);
-    return new Proxy({} as PrismaClient, {
-      get() {
-        return () => Promise.reject(new Error("DATABASE_URL not configured"));
-      },
-    });
+    return createSafeFallbackProxy();
   }
 }
 

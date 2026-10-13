@@ -2,7 +2,7 @@ import { Resend } from "resend";
 import { db } from "@/lib/db";
 import { EmailNotificationType } from "@prisma/client";
 
-export const resend = new Resend(process.env.RESEND_API_KEY);
+export const resend = new Resend(process.env.RESEND_API_KEY || "re_build_placeholder_key");
 
 const FROM = process.env.EMAIL_FROM ?? "GenZee Psychologist <hello@example.com>";
 const REPLY_TO = process.env.EMAIL_REPLY_TO ?? "hello@example.com";
